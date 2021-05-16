@@ -1,0 +1,384 @@
+---
+title: "Tableau de bord"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(AfricanStockMarkets)
+library(ggplot2)
+library(plotly)
+library(dplyr)
+```
+
+# Indices
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+
+### BRVM-C (Cote d'Ivoire)
+
+
+
+```{r fig.align='left'}
+
+indices %>% filter( Nom_ind == "BRVM-C" ) %>% ggplot(aes(num_jourI, Valeur)) + geom_line()
+
+
+```
+
+
+### MASI Flottant (Morocco)
+
+```{r}
+
+indices %>% filter( Nom_ind == "MASI Flottant" ) %>% ggplot(aes(num_jourI, Valeur)) + geom_line()
+```
+
+
+### J203-All Share (South Africa)
+
+```{r}
+indices %>% filter( Nom_ind == "J203-All Share" ) %>% ggplot(aes(num_jourI, Valeur)) + geom_line()
+
+
+```
+
+
+
+
+Column {data-width=250}
+-----------------------------------------------------------------------
+
+### taux de variation moyen
+
+```{r}
+
+Mydata <- indices %>% filter( Nom_ind == "BRVM-C" ) %>% select(Variation)
+
+
+
+gauge(GeomMeans(Mydata$Variation), min = -5, max = 5, symbol = '%', 
+      gaugeSectors(success = c(0, 5), warning = c(-2, -0.000000001), 
+                   danger = c(-5, -2.00000001))
+)
+
+
+```
+
+> le taux de variation moyen est positif ce qui signifie que le marché (CIV) s'est bien porté durant la période de collecte en moyenne.
+
+### taux de variation moyen
+
+```{r}
+Mydata <- indices %>% filter( Nom_ind == "MASI Flottant" ) %>% select(Variation)
+
+
+
+gauge(GeomMeans(Mydata$Variation), min = -5, max = 5, symbol = '%', 
+      gaugeSectors(success = c(0, 5), warning = c(-2, -0.000000001), 
+                   danger = c(-5, -2.00000001))
+)
+
+```
+
+> le taux de variation moyen est positif ce qui temoigne du dynamisme du marché malgré une baisse durant la période.
+
+### taux de variation moyen
+
+```{r}
+Mydata <- indices %>% filter( Nom_ind == "J203-All Share" ) %>% select(Variation)
+
+
+
+gauge(GeomMeans(Mydata$Variation), min = -5, max = 5, symbol = '%', 
+      gaugeSectors(success = c(0, 5), warning = c(-2, -0.000000001), 
+                   danger = c(-5, -2.00000001))
+)
+
+
+```
+
+> le taux de variation moyen est positif ce qui temoigne du dynamisme du marché (ZAF) malgré une baisse durant la période.
+
+Column {data-width=250}
+-----------------------------------------------------------------------
+
+### Commentaires
+
+Les indices boursiers des places financières africaines sont dans l'ensemble sur un dynamisme important du moins pendant cette période de collecte malgré une toutes les incertitudes qui règnent avec la pandémie à <font color="red"> Covid-19 </font> et ses conséquences sur l'économie mondiale et Le continent Africain n'y échape pas, en 2020 il a connu sa plus sévère recession depuis 1992. Comme une forme de résilience des marchés boursiers on a rarement assisté à une baisse continue des indicateurs notammant les indices principles. Selon un rapport de Absa Africa Financial Markets Index les 3 premiers marchés boursiers 
+
+# Shares
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+
+
+
+### Meilleure action de la BVC (Morocco)
+
+
+```{r}
+Mydata <- share_MAR
+Mydata <- arrange(Mydata, desc(ValeurAction))
+Mydat <- top_n(Mydata, 5, ValeurAction)
+SS <-  Mydat$Nom_entreprise
+Mydata <- Mydata %>% filter(Nom_entreprise %in% SS)
+
+```
+
+```{r fig.align='left'}
+
+SS[4]
+
+Mydata %>% filter( Nom_entreprise == SS[4] ) %>% ggplot(aes(num_jourA, ValeurAction)) + geom_line()
+
+
+```
+
+
+### Meilleur action de la Egyptian Stock Exchange (ESE)
+
+```{r}
+Mydata <- share_EGY
+Mydata <- arrange(Mydata, desc(ValeurAction))
+Mydata <- Mydata[c(-1,-2,-3), ]
+Mydat <- top_n(Mydata, 5, ValeurAction)
+SS <-  Mydat$Nom_entreprise
+Mydata <- Mydata %>% filter(Nom_entreprise %in% SS)
+
+```
+
+
+```{r}
+SS[1]
+Mydata %>% filter( Nom_entreprise == SS[1] ) %>% ggplot(aes(num_jourA, ValeurAction)) + geom_line()
+```
+
+
+### Meilleur action de la BRVM
+
+
+```{r echo=FALSE, include=FALSE}
+Mydata <- share_CIV
+Mydata <- arrange(Mydata, desc(ValeurAction))
+Mydat <- top_n(Mydata, 5, ValeurAction)
+SS <-  Mydat$Nom_entreprise
+Mydata <- Mydata %>% filter(Nom_entreprise %in% SS)
+
+```
+
+
+```{r tidy=TRUE}
+SS[4]
+Mydata %>% filter( Nom_entreprise == SS[4] ) %>% ggplot(aes(num_jourA, ValeurAction)) + geom_line()
+
+
+```
+
+
+
+
+Column {data-width=250}
+-----------------------------------------------------------------------
+
+### taux de variation moyen
+
+
+```{r}
+
+Mydata <- share_MAR %>% filter( Nom_entreprise == "RES DAR SAADA" ) %>% select(VariationAction)
+
+
+gauge(GeomMeans(Mydata$VariationAction), min = -50, max = 50, symbol = '%', 
+      gaugeSectors(success = c(0, 30), warning = c(-2, -0.000000001), 
+                   danger = c(-50, -2.00000001))
+
+)
+```
+
+> le taux de variation moyen est fortement négatif ce qui traduit baisse drastique de l'action RES DAR SAADA de la BVC.
+
+### taux de variation moyen
+
+```{r}
+Mydata <- share_EGY %>% filter( Nom_entreprise == "Speed Medical" ) %>% select(VariationAction)
+
+
+
+gauge(GeomMeans(Mydata$VariationAction), min = -30, max = 30, symbol = '%', 
+      gaugeSectors(success = c(0, 30), warning = c(-2, -0.000000001), 
+                   danger = c(-30, -2.00000001))
+)
+
+```
+
+> le taux de variation moyen est positif ce qui temoigne du dynamisme de l'action 'Speed Medical' de la ESE sur la période.
+
+### taux de variation moyen
+
+```{r}
+Mydata <- share_CIV %>% filter( Nom_entreprise == "SONATEL" ) %>% select(VariationAction)
+
+
+
+gauge(GeomMeans(Mydata$VariationAction), min = -5, max = 5, symbol = '%', 
+      gaugeSectors(success = c(0, 5), warning = c(-2, -0.000000001), 
+                   danger = c(-5, -2.00000001))
+)
+
+
+```
+
+> le taux de variation moyen est sensiblement positif ce qui traduit une certaine résilience des actions de la SONATEL durant la période.
+
+Column {data-width=250}
+-----------------------------------------------------------------------
+
+### Commentaire
+
+```{r}
+
+```
+
+# Bonds
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+
+
+
+### Meilleur Obligation de la JSE (South Africa)
+
+
+```{r}
+Mydata <- bonds_AZF
+Mydata <- arrange(Mydata, desc(ValeurOb))
+Mydat <- top_n(Mydata, 5, ValeurOb)
+SS <-  Mydat$code_obligation
+Mydata <- Mydata %>% filter(code_obligation %in% SS)
+
+```
+
+```{r fig.align='left'}
+
+SS[1]
+
+Mydata %>% filter( code_obligation == SS[1] ) %>% ggplot(aes(num_jourO, ValeurOb)) + geom_line()
+
+
+```
+
+
+### Meilleur Obligation de la BVC (Morocco) 
+
+```{r}
+
+Mydata <- bonds_CIV
+Mydata <- arrange(Mydata, desc(ValeurOb))
+Mydat <- top_n(Mydata, 5, ValeurOb)
+SS <-  Mydat$code_obligation
+Mydata <- Mydata %>% filter(code_obligation %in% SS)
+
+
+```
+
+
+```{r}
+SS[1]
+Mydata %>% filter( code_obligation == SS[1] ) %>% ggplot(aes(num_jourO, ValeurOb)) + geom_line()
+```
+
+
+### Meilleur Obligation de la SEM (Ile Maurice)
+
+
+```{r echo=FALSE, include=FALSE}
+
+Mydata <- bonds_MUS
+Mydata <- arrange(Mydata, desc(ValeurOb))
+Mydat <- top_n(Mydata, 5, ValeurOb)
+SS <-  Mydat$code_obligation
+Mydata <- Mydata %>% filter(code_obligation %in% SS)
+```
+
+
+```{r tidy=TRUE}
+SS[1]
+Mydata %>% filter( code_obligation == SS[1] ) %>% ggplot(aes(num_jourO, ValeurOb)) + geom_line()
+
+
+```
+
+
+
+
+Column {data-width=250}
+-----------------------------------------------------------------------
+
+### 1
+
+
+```{r}
+Mydata <- bonds_AZF %>% filter( code_obligation == "KCCGLD-KR Custodial Certificate" ) %>% select(ValeurOb) %>% arrange(desc(ValeurOb))
+
+
+
+valueBox(Mydata$ValeurOb[1], caption = "La plus grande valeur de l'obligation KCCGLD-KR Custodial Certificate", icon="fa-tag")
+
+
+```
+
+### 2
+
+```{r}
+
+valueBox(Mydata$ValeurOb[dim(Mydata)[1]], caption = "La plus petite valeur de l'obligation KCCGLD-KR Custodial Certificate", icon="fa-tag")
+```
+
+
+### 3
+
+```{r}
+Mydata <- bonds_CIV %>% filter( code_obligation == "TRESOR PUBLIC DU NIGER 6,50% 2019-2026" ) %>% select(ValeurOb) %>% arrange(desc(ValeurOb))
+
+
+valueBox(Mydata$ValeurOb[1], caption = "La plus grande valeur de l'obligation TRESOR PUBLIC DU NIGER 6,50% 2019-2026", icon="fa-tag")
+
+```
+
+
+
+### 4
+
+```{r}
+
+valueBox(Mydata$ValeurOb[dim(Mydata)[1]], caption = "La plus petite valeur de l'obligation TRESOR PUBLIC DU NIGER 6,50% 2019-2026", icon="fa-tag")
+
+```
+
+### 4
+
+```{r}
+Mydata <- bonds_MUS %>% filter( code_obligation == "BOM GJB 010621" ) %>% select(ValeurOb) %>% arrange(desc(ValeurOb))
+
+valueBox(Mydata$ValeurOb[dim(Mydata)[1]], caption = "La valeur de l'obligation BOM GJB 010621 est constante", icon="fa-tag")
+
+```
+
+
+
+Column {data-width=250}
+-----------------------------------------------------------------------
+
+### Commentaire
+
+```{r}
+
+```
